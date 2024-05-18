@@ -18,3 +18,4 @@ routes.post('/admin', controller.verifyAdmin, controller.getAllUsers);
 routes.post('/join', controller.sendJoinCodeByEmail); // Route to send join code via email
 
 module.exports = routes; // Export the Router object so it can be used in other files
+
