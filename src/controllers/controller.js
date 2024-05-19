@@ -1,5 +1,6 @@
 const User = require('../models/user.model');
 const Join = require('../models/join.model');
+const Calendar = require('../models/calendar.model');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer');
@@ -22,6 +23,77 @@ const transporter = nodemailer.createTransport({
 
 
 const controller = {};
+controller.createCalendar = async (req, res) => {
+  const d= req.body
+  d.owner=req.decodedToken.userId
+  try {
+      const calendar = new Calendar(d);
+      const savedCalendar = await calendar.save();
+      res.status(201).json(savedCalendar);
+  } catch (error) {
+      res.status(400).json({ message: error.message });
+  }
+};
+
+// Get all calendar entries for a user
+controller.getCalendarsByUser = async (req, res) => {
+
+  try {
+      const calendars = await Calendar.find({ owner: req.decodedToken.userId });
+      res.status(200).json(calendars);
+  } catch (error) {
+      res.status(400).json({ message: error.message });
+  }
+};
+controller.getAllCalendars = async (req, res) => {
+  try {
+      const calendars = await Calendar.find();
+      res.status(200).json(calendars);
+  } catch (error) {
+      res.status(400).json({ message: error.message });
+  }
+};
+
+// Get a single calendar entry by ID
+controller.getCalendarById = async (req, res) => {
+  try {
+      const calendar = await Calendar.findById(req.params.id).populate('owner', 'username email');
+      if (!calendar) {
+          return res.status(404).json({ message: 'Calendar entry not found' });
+      }
+      res.status(200).json(calendar);
+  } catch (error) {
+      res.status(400).json({ message: error.message });
+  }
+};
+
+// Update a calendar entry
+controller.updateCalendar = async (req, res) => {
+  if(req.body.owner!==req.decodedToken.userId)return req.status(404).json({message:'not the user'})
+  try {
+      const updatedCalendar = await Calendar.findByIdAndUpdate(req.params.id, req.body, { new: true });
+      if (!updatedCalendar) {
+          return res.status(404).json({ message: 'Calendar entry not found' });
+      }
+      res.status(200).json(updatedCalendar);
+  } catch (error) {
+      res.status(400).json({ message: error.message });
+  }
+};
+
+// Delete a calendar entry
+controller.deleteCalendar = async (req, res) => {
+  try {
+      const deletedCalendar = await Calendar.findByIdAndDelete(req.params.id);
+      if (!deletedCalendar) {
+          return res.status(404).json({ message: 'Calendar entry not found' });
+      }
+      res.status(200).json({ message: 'Calendar entry deleted' });
+  } catch (error) {
+      res.status(400).json({ message: error.message });
+  }
+};
+
 
 // Middleware to verify JWT token
 controller.verifyToken = async (req, res, next) => {

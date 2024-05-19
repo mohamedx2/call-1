@@ -35,10 +35,10 @@ const userSchema = new mongoose.Schema({
         required: true
     },
     image: {
-        type: String, // Assuming the image will be stored as a URL
+        type: String,
         required: false // Set to true if image is mandatory
     }
 });
 
-//Export the model
+// Export the model
 module.exports = mongoose.model('User', userSchema);

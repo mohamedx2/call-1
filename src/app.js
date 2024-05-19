@@ -4,8 +4,8 @@ const app = express();
 const cors = require('cors')
 app.use(cors())
 ///////////////////////
-const compression = require('compression');
-app.use(compression)
+/*const compression = require('compression');
+app.use(compression)*/
 //use .env file
 require('dotenv').config()
 
